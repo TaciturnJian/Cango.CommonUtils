@@ -1,6 +1,7 @@
 #include <Cango/CommonUtils/IntervalSleeper.hpp>
 #include <iostream>
 #include <random>
+#include <thread>
 
 using namespace Cango;
 
