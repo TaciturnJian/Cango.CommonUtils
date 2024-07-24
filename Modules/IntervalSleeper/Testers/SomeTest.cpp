@@ -4,7 +4,6 @@
 #include <thread>
 
 using namespace Cango;
-
 using namespace std::chrono_literals;
 
 int main() {
