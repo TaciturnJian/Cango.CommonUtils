@@ -1,7 +1,6 @@
-
 #include <iostream>
-#include <thread>
 #include <Cango/CommonUtils.hpp>
+#include <fmt/format.h>
 
 using namespace Cango;
 using namespace std::chrono_literals;
@@ -17,7 +16,7 @@ int main() {
 		const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - begin).count();
 		const auto rating = counter.Call(now);
 
-		std::cout << '[' << duration << "ms] " << rating << "cps     \r";
+		std::cout << fmt::format("[{}ms] {}cps     \r", duration, rating);
 		std::cout.flush();
 	}
 }

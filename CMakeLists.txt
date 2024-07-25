@@ -16,6 +16,7 @@ AddCXXModule(
 	NAME CommonUtils
 	NAMESPACE Cango
 	LINKS
+		"fmt::fmt"
 		"Cango_CommonUtils_AsyncItemPool"
 		"Cango_CommonUtils_CounterX"
 		"Cango_CommonUtils_IntervalSleeper"
