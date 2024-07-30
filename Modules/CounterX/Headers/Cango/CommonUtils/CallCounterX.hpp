@@ -33,7 +33,7 @@ namespace Cango :: inline CommonUtils {
 		}
 
 	public:
-		float Call(const std::chrono::steady_clock::time_point& now) {
+		float Call(const std::chrono::steady_clock::time_point& now) noexcept {
 			++Count;
 
 			const auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - BeginTime);
@@ -57,6 +57,10 @@ namespace Cango :: inline CommonUtils {
 			ReduceCount();
 			const auto new_diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - BeginTime);
 			return static_cast<float>(Count) * 1000.0f / static_cast<float>(new_diff.count());
+		}
+
+		float Call() noexcept {
+			return Call(std::chrono::steady_clock::now());
 		}
 	};
 }

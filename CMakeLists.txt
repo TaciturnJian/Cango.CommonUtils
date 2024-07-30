@@ -10,6 +10,7 @@ AddModulesInDirectory(
 		"AsyncItemPool"
 		"CounterX"
 		"IntervalSleeper"
+		"Configurations"
 )
 
 AddCXXModule(
@@ -20,4 +21,5 @@ AddCXXModule(
 		"Cango_CommonUtils_AsyncItemPool"
 		"Cango_CommonUtils_CounterX"
 		"Cango_CommonUtils_IntervalSleeper"
+		"Cango_CommonUtils_Configurations"
 )	
