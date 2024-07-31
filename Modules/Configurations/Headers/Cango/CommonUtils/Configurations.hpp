@@ -22,6 +22,4 @@ namespace Cango :: inline CommonUtils :: inline Configurations {
 		value = *value_opt;
 		return true;
 	}
-
-
 }

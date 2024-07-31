@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <chrono>
 
 namespace Cango :: inline CommonUtils {
@@ -59,8 +60,10 @@ namespace Cango :: inline CommonUtils {
 			return static_cast<float>(Count) * 1000.0f / static_cast<float>(new_diff.count());
 		}
 
-		float Call() noexcept {
-			return Call(std::chrono::steady_clock::now());
-		}
+		float Call() noexcept { return Call(std::chrono::steady_clock::now()); }
 	};
+
+	using CallRateCounter16 = CallRateCounterX<std::uint16_t>;
+	using CallRateCounter32 = CallRateCounterX<std::uint32_t>;
+	using CallRateCounter64 = CallRateCounterX<std::uint64_t>;
 }

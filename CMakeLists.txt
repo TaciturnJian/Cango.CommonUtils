@@ -8,9 +8,10 @@ AddModulesInDirectory(
 	DIRECTORY "Modules"
 	NAMES
 		"AsyncItemPool"
+		"CallRateCounterX"
+		"Configurations"
 		"CounterX"
 		"IntervalSleeper"
-		"Configurations"
 )
 
 AddCXXModule(
@@ -18,8 +19,9 @@ AddCXXModule(
 	NAMESPACE Cango
 	LINKS
 		"fmt::fmt"
-		"Cango_CommonUtils_AsyncItemPool"
-		"Cango_CommonUtils_CounterX"
-		"Cango_CommonUtils_IntervalSleeper"
-		"Cango_CommonUtils_Configurations"
+		"Cango_CommonUtils::AsyncItemPool"
+		"Cango_CommonUtils::CallRateCounterX"
+		"Cango_CommonUtils::Configurations"
+		"Cango_CommonUtils::CounterX"
+		"Cango_CommonUtils::IntervalSleeper"
 )	
