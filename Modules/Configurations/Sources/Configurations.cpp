@@ -1,4 +1,5 @@
 #include <functional>
+#include <map>
 #include <boost/property_tree/info_parser.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/json_parser.hpp>

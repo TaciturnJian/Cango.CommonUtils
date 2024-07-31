@@ -4,6 +4,8 @@ AddCXXModule(
 	NAME "Configurations"
 	NAMESPACE "Cango_CommonUtils"
 	LINKS 
+		"fmt::fmt"
+		"spdlog::spdlog"
 		"Boost::system"
 		"Boost::filesystem"
 )
