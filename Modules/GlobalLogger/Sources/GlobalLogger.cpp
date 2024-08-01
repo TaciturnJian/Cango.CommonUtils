@@ -10,8 +10,8 @@ namespace Cango:: inline CommonUtils {
 	///	@param filename 日志文件名
 	///	@param level 日志记录器的最低日志等级，低于此等级的日志将不会被记录
 	[[nodiscard]] bool InitializeDefaultLogger(
-		std::string_view filename,
-		spdlog::level::level_enum level) noexcept {
+		const std::string_view filename,
+		const spdlog::level::level_enum level) noexcept {
 #pragma region make file sink helper
 		static auto make_file_sink = [](const std::string_view file) {
 			static constexpr std::size_t mb = 1024ull * 1024;

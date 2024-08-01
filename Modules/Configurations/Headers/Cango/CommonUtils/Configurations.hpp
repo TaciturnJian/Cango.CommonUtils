@@ -13,7 +13,7 @@ namespace Cango :: inline CommonUtils :: inline Configurations {
 	bool SaveVariableTableToFile(spdlog::logger& logger, const VariableTable& table, const FilePathType& file) noexcept;
 
 	template<typename TValue>
-	bool ReadVariable(spdlog::logger& logger, const VariableTable& table, const std::string_view& key, TValue& value) {
+	bool ReadVariable(spdlog::logger& logger, const VariableTable& table, const std::string_view& key, TValue& value) noexcept {
 		const auto value_opt = table.get_optional<TValue>(key.data());
 		if (!value_opt) {
 			logger.error("DefaultConfigure> key not found: {}", key);

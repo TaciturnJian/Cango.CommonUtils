@@ -21,6 +21,7 @@ AddModulesInDirectory(
 		"CounterX"
 		"GlobalLogger"
 		"IntervalSleeper"
+		"ScopeNotifier"
 )
 
 AddCXXModule(
@@ -37,4 +38,5 @@ AddCXXModule(
 		"Cango_CommonUtils::CounterX"
 		"Cango_CommonUtils::GlobalLogger"
 		"Cango_CommonUtils::IntervalSleeper"
+		"Cango_CommonUtils::ScopeNotifier"
 )	
