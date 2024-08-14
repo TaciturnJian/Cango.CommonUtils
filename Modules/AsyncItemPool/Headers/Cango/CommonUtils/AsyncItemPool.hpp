@@ -27,7 +27,7 @@ namespace Cango :: inline CommonUtils {
 			TItem Item{};
 		};
 
-		std::atomic_uchar WriterIndex{0};
+		std::atomic_uint8_t WriterIndex{0};
 		std::array<ItemInfo, 3> ItemInfoList{};
 
 	public:
