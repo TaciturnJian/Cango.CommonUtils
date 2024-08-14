@@ -46,7 +46,7 @@ namespace Cango:: inline CommonUtils {
 		const auto* current_tm = std::localtime(&current_time); // NOLINT(concurrency-mt-unsafe)
 		std::ostringstream stream{};
 		const auto path = fmt::format(
-			"logs/{}_{:0>4}-{:0>2}-{:0>2}_{:0>2}-{:0>2}-{:0>2}-",
+			"logs/{}_{:0>4}-{:0>2}-{:0>2}_{:0>2}-{:0>2}-{:0>2}_",
 			appName,
 			current_tm->tm_year + 1900,
 			current_tm->tm_mon + 1,
