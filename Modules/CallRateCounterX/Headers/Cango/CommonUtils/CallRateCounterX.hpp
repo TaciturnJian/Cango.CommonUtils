@@ -4,7 +4,9 @@
 #include <chrono>
 
 namespace Cango :: inline CommonUtils {
-	/// @brief 调用速率计数器，单位是 次/s
+	/// @brief 调用速率计数器，单位是(次/s)
+	///		内部最小时间单位为毫秒。理论不会存在溢出的问题，但是在一些情况下可能会出现计数器陷入错误的状态。
+	///	@warning 多线程中不安全，请确保只在单个线程中调用此类的函数。
 	template <typename TNumber>
 	class CallRateCounterX {
 		static constexpr std::chrono::milliseconds UpdateDuration{1000};
@@ -34,6 +36,7 @@ namespace Cango :: inline CommonUtils {
 		}
 
 	public:
+		/// @brief 使用提供的当前时间更新计数
 		float Call(const std::chrono::steady_clock::time_point& now) noexcept {
 			++Count;
 
@@ -60,6 +63,7 @@ namespace Cango :: inline CommonUtils {
 			return static_cast<float>(Count) * 1000.0f / static_cast<float>(new_diff.count());
 		}
 
+		/// @brief 使用 @c std::chrono::steady_clock 提供的当前时间更新计数
 		float Call() noexcept { return Call(std::chrono::steady_clock::now()); }
 	};
 

@@ -1,10 +1,12 @@
 #include <functional>
 #include <map>
+#include <optional>
+#include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/property_tree/info_parser.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <Cango/CommonUtils/Configurations.hpp>
 
 namespace {
@@ -15,7 +17,7 @@ namespace {
 	using namespace boost::filesystem;
 
 	std::string ExtensionToLower(const std::string& extension) noexcept {
-		static auto to_lower = [](const unsigned char c) { return std::tolower(c); };
+		static auto to_lower = [](const unsigned char c) noexcept { return std::tolower(c); };
 
 		std::string extension_lower{extension};
 		std::ranges::transform(extension, extension_lower.begin(), to_lower);
@@ -48,44 +50,43 @@ namespace {
 
 	using reader_t = std::function<void(const std::string&, VariableTable&)>;
 
-	bool SelectReader(spdlog::logger& logger, const FilePathType& path, reader_t& reader) noexcept {
-#define SC_READER_HELPER(boost_call) [](const std::string& filename, VariableTable& pt) { boost_call(filename, pt); }
+	std::optional<reader_t> SelectReader(spdlog::logger& logger, const FilePathType& path) noexcept {
+#define sc_generate_reader(boost_call) [](const std::string& filename, VariableTable& table) noexcept { boost_call(filename, table); }
 		static const std::map<std::string, reader_t> reader_map{
-			{".ini", SC_READER_HELPER(read_ini)},
-			{".json", SC_READER_HELPER(read_json)},
-			{".xml", SC_READER_HELPER(read_xml)},
-			{".info", SC_READER_HELPER(read_info)}
+			{".ini", sc_generate_reader(read_ini)},
+			{".json", sc_generate_reader(read_json)},
+			{".xml", sc_generate_reader(read_xml)},
+			{".info", sc_generate_reader(read_info)}
 		};
-#undef SC_READER_HELPER
+#undef sc_generate_reader
 
 		const auto extension = path.extension();
 		const auto& extension_string = extension.string();
 		const auto extension_lower = ExtensionToLower(extension_string);
 		if (!reader_map.contains(extension_lower)) {
 			logger.error("不支持的配置文件后缀：{}", extension_string);
-			return false;
+			return std::nullopt;
 		}
 
-		reader = reader_map.at(extension_lower);
-		return true;
+		return reader_map.at(extension_lower);
 	}
 
 	bool TryRead(
 		spdlog::logger& logger,
 		const FilePathType& path,
-		VariableTable& tree,
-		const reader_t& reader) noexcept {
-		const auto& path_string = path.string();
-		try { reader(path_string, tree); }
-		catch (const std::exception& ex) {
-			logger.error("无法读取文件({}): {}", path_string, ex.what());
-			return false;
-		}
-		catch (...) {
-			logger.error("无法读取文件({}): 未知错误", path_string);
-			return false;
-		}
+		VariableTable& table,
+		const reader_t& reader) noexcept
+	try {
+		reader(path.string(), table);
 		return true;
+	}
+	catch (const std::exception& ex) {
+		logger.error("无法读取文件({}): {}", path.string(), ex.what());
+		return false;
+	}
+	catch (...) {
+		logger.error("无法读取文件({}): 未知错误", path.string());
+		return false;
 	}
 
 #ifdef _WINDOWS
@@ -105,45 +106,42 @@ namespace {
 
 	using writer_t = std::function<void(const std::string&, const VariableTable&)>;
 
-	bool SelectWriter(spdlog::logger& logger, const FilePathType& path, writer_t& writer) noexcept {
-#define SC_WRITER_HELPER(boost_call) [](const std::string& filename, const VariableTable& pt) { boost_call(filename, pt); }
+	std::optional<writer_t> SelectWriter(spdlog::logger& logger, const FilePathType& path) noexcept {
+#define sc_generate_writer(boost_call) [](const std::string& filename, const VariableTable& pt) noexcept { boost_call(filename, pt); }
 		static const std::map<std::string, writer_t> writer_map{
-			{".ini", SC_WRITER_HELPER(write_ini)},
-			{".json", SC_WRITER_HELPER(write_json)},
-			{".xml", SC_WRITER_HELPER(write_xml)},
-			{".info", SC_WRITER_HELPER(write_info)}
+			{".ini", sc_generate_writer(write_ini)},
+			{".json", sc_generate_writer(write_json)},
+			{".xml", sc_generate_writer(write_xml)},
+			{".info", sc_generate_writer(write_info)}
 		};
-#undef SC_WRITER_HELPER
+#undef sc_generate_writer
 
 		const auto extension = path.extension();
 		const auto& extension_string = extension.string();
 		const auto extension_lower = ExtensionToLower(extension_string);
 		if (!writer_map.contains(extension_lower)) {
 			logger.error("不支持的配置文件后缀：{}", extension_string);
-			return false;
+			return std::nullopt;
 		}
-
-		writer = writer_map.at(extension_lower);
-		return true;
+		return writer_map.at(extension_lower);
 	}
 
 	bool TryWrite(
 		spdlog::logger& logger,
 		const FilePathType& path,
-		const VariableTable& tree,
-		const writer_t& writer) noexcept {
-		const auto& path_string = path.string();
-		try { writer(path_string, tree); }
-		catch (const std::exception& ex) {
-			logger.error("无法写入配置文件({}): {}", path_string, ex.what());
-			return false;
-		}
-		catch (...) {
-			logger.error("无法写入配置文件({}): 未知错误", path_string);
-			return false;
-		}
-
+		const VariableTable& table,
+		const writer_t& writer) noexcept
+	try {
+		writer(path.string(), table);
 		return true;
+	}
+	catch (const std::exception& ex) {
+		logger.error("无法写入配置文件({}): {}", path.string(), ex.what());
+		return false;
+	}
+	catch (...) {
+		logger.error("无法写入配置文件({}): 未知错误", path.string());
+		return false;
 	}
 }
 
@@ -158,13 +156,13 @@ namespace Cango :: inline CommonUtils :: inline Configurations {
 			return false;
 		}
 
-		reader_t reader;
-		if (!SelectReader(logger, file, reader)) {
+		const std::optional<reader_t> reader = SelectReader(logger, file);
+		if (!reader) {
 			logger.error("找不到合适读取器读取配置文件({})", path_string);
 			return false;
 		}
 
-		if (!TryRead(logger, file, table, reader)) {
+		if (!TryRead(logger, file, table, *reader)) {
 			logger.error("读取配置文件({})的内容时出现错误", path_string);
 			return false;
 		}
@@ -183,13 +181,13 @@ namespace Cango :: inline CommonUtils :: inline Configurations {
 			return false;
 		}
 
-		writer_t writer;
-		if (!SelectWriter(logger, file, writer)) {
+		const std::optional<writer_t> writer = SelectWriter(logger, file);
+		if (!writer) {
 			logger.error("找不到合适的写入器写入配置文件({})", path_string);
 			return false;
 		}
 
-		if (!TryWrite(logger, file, table, writer)) {
+		if (!TryWrite(logger, file, table, *writer)) {
 			logger.error("写入内容到配置文件({})时出现异常", path_string);
 			return false;
 		}

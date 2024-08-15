@@ -6,8 +6,8 @@
 #include <memory>
 
 namespace Cango :: inline CommonUtils {
-	/// @brief 三重物品缓冲池，用于在两个线程中无阻塞地存取数据。
-	///		缓冲池的工作时涉及到三个角色：读取者(reader)，写入者(writer)，数据池(Pool)。
+	/// @brief 三重物品缓冲池，用于在两个线程中无阻塞地存取较新的数据。
+	///		缓冲池的工作时涉及到三个角色：读取者，写入者，数据池。
 	///		写入者向数据池放入物品，读取者从数据池取出物品，二者调用的函数分别为 @c GetItem @c SetItem 。
 	///	@tparam TItem 数据池中存储的物品的类型，要求可默认初始化( @c std::default_initializable )，还要支持赋值(等号表达式)构造。
 	/// @note 模板的限制并不严谨，但是满足大多数使用情况。
@@ -46,7 +46,7 @@ namespace Cango :: inline CommonUtils {
 			info_ptr->Status = Full;
 		}
 
-		/// @brief 从数据池中获取数据，几乎不阻塞当前线程，如果当前没有任何准备好的物品时，操作将会失败
+		/// @brief 从数据池中获取数据，几乎不阻塞当前线程。在没有找到任何准备好的物品时，操作将会失败
 		[[nodiscard]] bool GetItem(TItem& item) noexcept {
 			for (auto& [status, my_item] : ItemInfoList) {
 				if (status != Full) continue;

@@ -10,7 +10,10 @@ namespace Cango :: inline CommonUtils {
 		spdlog::level::level_enum LogLevel;
 
 	public:
-		ScopeNotifier(std::string_view name, std::shared_ptr<spdlog::logger> logger, spdlog::level::level_enum level) noexcept;
+		ScopeNotifier(
+			std::string_view name,
+			std::shared_ptr<spdlog::logger> logger,
+			spdlog::level::level_enum level) noexcept;
 
 		explicit ScopeNotifier(std::string_view name) noexcept;
 

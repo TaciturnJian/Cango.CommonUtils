@@ -2,5 +2,13 @@
 #include <spdlog/spdlog.h>
 
 int main() {
-	Cango::ScopeNotifier notifier{"测试", spdlog::default_logger(), spdlog::level::info};
+	spdlog::set_level(spdlog::level::trace);
+
+	Cango::ScopeNotifier notifier1{"测试1"};
+	{
+		Cango::ScopeNotifier notifier2{"测试2"};
+		{
+			Cango::ScopeNotifier notifier3{"测试3"};
+		}
+	}
 }
