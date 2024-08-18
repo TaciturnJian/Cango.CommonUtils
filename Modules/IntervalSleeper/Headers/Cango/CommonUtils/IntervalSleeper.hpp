@@ -13,8 +13,7 @@ namespace Cango :: inline CommonUtils {
 	///		如果你希望设置延时为 0ms ，请注意这里会有一个很小的调用延时，而且它还会变化。
 	///		Windows 和 Linux 上表现差距巨大。尤其是 Windows 平台上，在 Interval 太小时方差巨大，我真的爱死微软了。
 	///
-	///	@warning
-	///		如果你想在多个线程共享此类，祝你好运。
+	///	@warning 如果你想在多个线程共享此类，祝你好运。
 	class IntervalSleeper {
 		std::chrono::steady_clock::time_point LastSleepTime{};
 

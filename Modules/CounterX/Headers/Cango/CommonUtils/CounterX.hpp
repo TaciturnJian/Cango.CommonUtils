@@ -9,7 +9,6 @@ namespace Cango:: inline CommonUtils {
 		TNumber Current{};
 		TNumber MaxCount{};
 
-
 		[[nodiscard]] bool Count() noexcept {
 			if (Current < MaxCount - 1) {
 				++Current;

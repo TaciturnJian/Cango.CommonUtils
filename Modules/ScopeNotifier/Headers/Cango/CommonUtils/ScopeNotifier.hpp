@@ -22,4 +22,6 @@ namespace Cango :: inline CommonUtils {
 
 		~ScopeNotifier() noexcept;
 	};
+
+	using LifeTimeNotifier = ScopeNotifier;
 }
