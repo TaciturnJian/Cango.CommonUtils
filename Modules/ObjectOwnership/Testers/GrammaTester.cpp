@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Cango/ObjectOwnership.hpp>
+#include <Cango/CommonUtils/ObjectOwnership.hpp>
 
 namespace {
 	struct A {

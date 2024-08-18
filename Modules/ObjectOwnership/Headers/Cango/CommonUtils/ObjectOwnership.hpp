@@ -23,6 +23,8 @@ namespace Cango:: inline CommonUtils :: inline ObjectOwnership {
 		explicit Owner(InternalDetails::VerySmallStruct) noexcept : UserPointer{} {}
 
 	public:
+		using element_type = T;
+
 		/// @brief 创建空 Owner
 		static Owner CreateEmpty() noexcept { return Owner{InternalDetails::VerySmallStructInstance}; }
 
@@ -37,13 +39,20 @@ namespace Cango:: inline CommonUtils :: inline ObjectOwnership {
 		Owner(Owner&) noexcept = delete;
 		Owner(Owner&& other) noexcept = default;
 		Owner& operator=(Owner&) noexcept = delete;
-		Owner& operator=(Owner&& other) noexcept = default;
+		Owner& operator=(Owner&& other) noexcept {
+			if (this != &other) {
+				UserPointer = std::move(other.UserPointer);
+			}
+			return *this;
+		}
 
 		explicit operator bool() const noexcept { return UserPointer != nullptr; }
 
-		explicit operator ObjectUser<T>() const noexcept { return UserPointer; }
+		// ReSharper disable once CppNonExplicitConversionOperator
+		operator ObjectUser<T>() const noexcept { return UserPointer; }
 
-		explicit operator Credential<T>() const noexcept { return UserPointer; }
+		// ReSharper disable once CppNonExplicitConversionOperator
+		operator Credential<T>() const noexcept { return UserPointer; }
 
 		T& operator*() const noexcept { return *UserPointer; }
 
