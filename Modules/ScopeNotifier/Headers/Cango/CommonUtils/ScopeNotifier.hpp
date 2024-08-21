@@ -24,11 +24,10 @@ namespace Cango :: inline CommonUtils {
 	};
 
 	using LifeTimeNotifier = ScopeNotifier;
+}
 
 #ifdef _DEBUG
-#define DebugScopeNotifier(...) ScopeNotifier XDebugNotifier{__VA_ARGS__}
+#define DebugScopeNotifier(...) ::Cango::CommonUtils::ScopeNotifier XDebugNotifier{__VA_ARGS__}
 #else
 #define DebugScopeNotifier(...)
 #endif
-
-}
