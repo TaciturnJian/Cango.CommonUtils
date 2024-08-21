@@ -1,14 +1,30 @@
 #include <Cango/CommonUtils/ScopeNotifier.hpp>
 #include <spdlog/spdlog.h>
 
+
+using namespace Cango;
+
+namespace {
+	class TestModule {
+		DebugScopeNotifier("测试模块");
+
+	public:
+		void Test() const {
+			DebugScopeNotifier("1");
+			{
+				DebugScopeNotifier("2");
+				{
+					DebugScopeNotifier("3");
+				}
+			}
+		}
+	};
+}
+
+
 int main() {
 	spdlog::set_level(spdlog::level::trace);
 
-	Cango::ScopeNotifier notifier1{"测试1"};
-	{
-		Cango::ScopeNotifier notifier2{"测试2"};
-		{
-			Cango::ScopeNotifier notifier3{"测试3"};
-		}
-	}
+	TestModule module{};
+	module.Test();
 }

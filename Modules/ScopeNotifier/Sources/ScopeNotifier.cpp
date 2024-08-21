@@ -7,8 +7,8 @@ namespace Cango :: inline CommonUtils {
 
 	ScopeNotifier::~ScopeNotifier() noexcept {
 		const auto message = fmt::format("退出范围：{}", ScopeName);
-		if (Logger == nullptr) spdlog::log(LogLevel, message);
-		else Logger->log(LogLevel, message);
+		if (Logger) Logger->log(LogLevel, message);
+		else spdlog::log(LogLevel, message);
 	}
 
 	ScopeNotifier::ScopeNotifier(
@@ -17,7 +17,7 @@ namespace Cango :: inline CommonUtils {
 		const spdlog::level::level_enum level) noexcept :
 		ScopeName(name), Logger(std::move(logger)), LogLevel(level) {
 		const auto message = fmt::format("进入范围：{}", ScopeName);
-		if (Logger == nullptr) spdlog::log(LogLevel, message);
-		else Logger->log(LogLevel, message);
+		if (Logger) Logger->log(LogLevel, message);
+		else spdlog::log(LogLevel, message);
 	}
 }
