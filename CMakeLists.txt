@@ -23,6 +23,7 @@ AddModulesInDirectory(
 		"IntervalSleeper"
 		"ObjectOwnership"
 		"ScopeNotifier"
+		"JoinThreads"
 )
 
 AddCXXModule(
@@ -41,4 +42,5 @@ AddCXXModule(
 		"Cango_CommonUtils::IntervalSleeper"
 		"Cango_CommonUtils::ObjectOwnership"
 		"Cango_CommonUtils::ScopeNotifier"
+		"Cango_CommonUtils::JoinThreads"
 )	

@@ -6,11 +6,16 @@
 namespace Cango :: inline CommonUtils {
 	/// @brief 调用速率计数器，单位是(次/s)
 	///		内部最小时间单位为毫秒。理论不会存在溢出的问题，但是在一些情况下可能会出现计数器陷入错误的状态。
-	///	@warning 多线程中不安全，请确保只在单个线程中调用此类的函数。
 	template <typename TNumber>
 	class CallRateCounterX {
 		static constexpr std::chrono::milliseconds UpdateDuration{1000};
 		static constexpr std::chrono::milliseconds TripleDuration{3000};
+
+		// UpdateDuration
+		// vvv
+		// [ ]|[ ]|[ ]
+		// ^^^^^^^
+		// TripleDuration
 
 		bool IsSetSomeTime{false};
 		std::chrono::steady_clock::time_point BeginTime{};
@@ -35,32 +40,41 @@ namespace Cango :: inline CommonUtils {
 			Count -= CountAtSomeTime;
 		}
 
+		static std::chrono::milliseconds ToMS(const auto& duration) {
+			return std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+		}
+
+		static float GetFrequency(const TNumber count, const std::chrono::milliseconds& duration) noexcept {
+			return static_cast<float>(count) * 1000.0f / static_cast<float>(duration.count());
+		}
+
 	public:
 		/// @brief 使用提供的当前时间更新计数
 		float Call(const std::chrono::steady_clock::time_point& now) noexcept {
+			// [x]|[ ]|[ ]
+
 			++Count;
-
-			const auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - BeginTime);
-
-			// 如果连第一段时间都没有到达，那么直接返回计数即可
+			const auto diff = ToMS(now - BeginTime);
 			if (diff < UpdateDuration) return static_cast<float>(Count);
 
-			// 如果到达了第一段时间，没有超过第三段时间，那么记录当前的计数，用于后续避免溢出的计算
+			// [ ]|[x]|[ ]
+
 			if (diff < TripleDuration) {
 				if (!IsSetSomeTime) RecordSomeTime(now);
-				return static_cast<float>(Count) * 1000.0f / static_cast<float>(diff.count());
+				return GetFrequency(Count, diff);
 			}
 
-			// 如果到达了第三段时间，但是没有记录到第二段时间，那么计数器陷入错误的状态（观测调用Duration太短），重置计数器
+			// [ ]|[ ]|[x]
+
+			// 检查是否经过了第二次时间，如果没有经过，则陷入错误状态，更新时间太长，计数器无法正常工作，需要重置计数器
 			if (!IsSetSomeTime) {
 				Reset(now);
-				return Call(now);
+				return 0;
 			}
 
 			// 利用记录的第二段时间中某个节点的时间点，减少计数防止溢出
 			ReduceCount();
-			const auto new_diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - BeginTime);
-			return static_cast<float>(Count) * 1000.0f / static_cast<float>(new_diff.count());
+			return GetFrequency(Count, ToMS(now - BeginTime));
 		}
 
 		/// @brief 使用 @c std::chrono::steady_clock 提供的当前时间更新计数
@@ -70,4 +84,5 @@ namespace Cango :: inline CommonUtils {
 	using CallRateCounter16 = CallRateCounterX<std::uint16_t>;
 	using CallRateCounter32 = CallRateCounterX<std::uint32_t>;
 	using CallRateCounter64 = CallRateCounterX<std::uint64_t>;
+	using CallRateCounter = CallRateCounter32;
 }
