@@ -3,6 +3,7 @@
 #include <array>
 #include <atomic>
 #include <cstdint>
+#include <concepts>
 #include <memory>
 
 namespace Cango :: inline CommonUtils {
