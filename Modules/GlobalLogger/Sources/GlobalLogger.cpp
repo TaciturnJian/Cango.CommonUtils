@@ -28,11 +28,11 @@ namespace Cango:: inline CommonUtils {
 			return true;
 		}
 		catch (const std::exception& ex) {
-			std::cerr << "failed to initialize collective logger: " << ex.what() << '\n';
+			std::cerr << "无法初始化通用日志：" << ex.what() << '\n';
 			return false;
 		}
 		catch (...) {
-			std::cerr << "failed to initialize collective logger: unknown exception\n";
+			std::cerr << "无法初始化通用日志：未知异常\n";
 			return false;
 		}
 	}

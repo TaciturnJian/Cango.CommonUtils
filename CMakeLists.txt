@@ -24,6 +24,7 @@ AddModulesInDirectory(
 		"ObjectOwnership"
 		"ScopeNotifier"
 		"JoinThreads"
+		"FormatExtension"
 )
 
 AddCXXModule(
@@ -43,4 +44,5 @@ AddCXXModule(
 		"Cango_CommonUtils::ObjectOwnership"
 		"Cango_CommonUtils::ScopeNotifier"
 		"Cango_CommonUtils::JoinThreads"
+		"Cango_CommonUtils::FormatExtension"
 )	

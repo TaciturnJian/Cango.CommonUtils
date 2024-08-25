@@ -2,11 +2,15 @@
 
 #include <cstdint>
 #include <chrono>
+#include <concepts>
 
 namespace Cango :: inline CommonUtils {
-	/// @brief 调用速率计数器，单位是(次/s)
-	///		内部最小时间单位为毫秒。理论不会存在溢出的问题，但是在一些情况下可能会出现计数器陷入错误的状态。
-	template <typename TNumber>
+	/// @brief 调用速率计数器，单位是(次/s)，支持的频率范围为 (1, @c std::numeric_limits<TNumber>::max() )。
+	///	@details
+	///		内部最小时间单位为毫秒。
+	///		如果调用速率小于等于 1hz 那么输出结果极其不稳定。
+	///		理论可以避免整数溢出。
+	template <std::integral TNumber>
 	class CallRateCounterX {
 		static constexpr std::chrono::milliseconds UpdateDuration{1000};
 		static constexpr std::chrono::milliseconds TripleDuration{3000};

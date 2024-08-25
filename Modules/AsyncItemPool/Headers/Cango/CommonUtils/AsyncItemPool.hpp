@@ -10,7 +10,7 @@ namespace Cango :: inline CommonUtils {
 	/// @brief 三重物品缓冲池，用于在两个线程中无阻塞地存取较新的数据。
 	///	@details 
 	///		缓冲池的工作时涉及到三个角色：读取者，写入者，数据池。
-	///		写入者向数据池放入物品，读取者从数据池取出物品。
+	///		读取者从数据池取出物品，写入者向数据池放入物品。
 	///		二者调用的函数分别为 @c GetItem @c SetItem 。
 	///	@tparam TItem 数据池中存储的物品的类型，要求支持默认构造和等号赋值。
 	template <std::default_initializable TItem>
@@ -31,7 +31,6 @@ namespace Cango :: inline CommonUtils {
 	public:
 		using ItemType = TItem;
 
-#ifndef SC_TRIPLE_ITEM_POOL_DELAY_UNIFORM_DISTRIBUTION
 		/// @brief 向数据池中写入数据，几乎不阻塞当前线程
 		void SetItem(const TItem& item) noexcept {
 			std::uint8_t index{WriterIndex};
@@ -39,7 +38,7 @@ namespace Cango :: inline CommonUtils {
 			do {
 				busy = Busy;
 				index = (index + 1) % 3;
-			} 
+			}
 			while (StatusList[index].compare_exchange_weak(busy, Busy));
 			ItemList[index] = item;
 			StatusList[index] = Full;
@@ -48,41 +47,16 @@ namespace Cango :: inline CommonUtils {
 
 		/// @brief 从数据池中获取数据，几乎不阻塞当前线程。在没有找到任何准备好的物品时，操作将会失败
 		[[nodiscard]] bool GetItem(TItem& item) noexcept {
-			// ReSharper disable once CppJoinDeclarationAndAssignment
-			std::uint8_t full;
 			for (std::uint8_t index = 0; index < 3; ++index) {
-				full = Full;
-				if (!StatusList[index].compare_exchange_weak(full, Busy)) continue;
+				if (std::uint8_t full = Full;
+					!StatusList[index].compare_exchange_weak(full, Busy))
+					continue;
 				item = ItemList[index];
 				StatusList[index] = Empty;
 				return true;
 			}
 			return false;
 		}
-#else
-		/// @brief 向数据池中写入数据，几乎不阻塞当前线程
-		void SetItem(const TItem& item) noexcept {
-			std::uint8_t index{WriterIndex};
-			do { index = (index + 1) % 3; }
-			while (StatusList[index] == Busy);
-			StatusList[index] = Busy;
-			ItemList[index] = item;
-			StatusList[index] = Full;
-			WriterIndex = index;
-		}
-
-		/// @brief 从数据池中获取数据，几乎不阻塞当前线程。在没有找到任何准备好的物品时，操作将会失败
-		[[nodiscard]] bool GetItem(TItem& item) noexcept {
-			for (std::uint8_t index = 0; index < 3; ++index) {
-				if (StatusList[index] != Full) continue;
-				StatusList[index] = Busy;
-				item = ItemList[index];
-				StatusList[index] = Empty;
-				return true;
-			}
-			return false;
-		}
-#endif
 	};
 
 	/// @brief 为了兼容之前的命名

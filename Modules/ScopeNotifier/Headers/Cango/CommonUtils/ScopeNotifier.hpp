@@ -26,8 +26,25 @@ namespace Cango :: inline CommonUtils {
 	using LifeTimeNotifier = ScopeNotifier;
 }
 
+/// @brief 监控进入退出当前上下文，或者实例的创建与销毁
+/// @code
+/// CANGO_SCOPE("Scope1");
+/// {
+/// 	CANGO_SCOPE("Scope1.1");
+/// 	{
+/// 		CANGO_SCOPE("Scope1.1.1");
+/// 	}
+/// 	{
+/// 		CANGO_SCOPE("Scope1.1.2");
+/// 	}
+/// }
+///	@endcode
+#define CANGO_SCOPE(...) ::Cango::CommonUtils::ScopeNotifier CangoScopeNotifier{__VA_ARGS__}
+
 #ifdef _DEBUG
-#define DebugScopeNotifier(...) ::Cango::CommonUtils::ScopeNotifier XDebugNotifier{__VA_ARGS__}
+/// @brief 在调试模式下使用 @c CANGO_SCOPE 监控，在非调试模式下不使用
+#define DebugScopeNotifier(...) CANGO_SCOPE(__VA_ARGS__)
 #else
+/// @brief 在调试模式下使用 @c CANGO_SCOPE 监控，在非调试模式下不使用
 #define DebugScopeNotifier(...)
 #endif

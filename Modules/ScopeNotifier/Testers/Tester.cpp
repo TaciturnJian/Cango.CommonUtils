@@ -6,15 +6,15 @@ using namespace Cango;
 
 namespace {
 	class TestModule {
-		DebugScopeNotifier("测试模块");
+		CANGO_SCOPE("TestModule");
 
 	public:
 		void Test() const {
-			DebugScopeNotifier("1");
+			CANGO_SCOPE("1");
 			{
-				DebugScopeNotifier("2");
+				CANGO_SCOPE("2");
 				{
-					DebugScopeNotifier("3");
+					CANGO_SCOPE("3");
 				}
 			}
 		}

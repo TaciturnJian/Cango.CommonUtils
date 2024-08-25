@@ -1,10 +1,11 @@
 #pragma once
 
 #include <cstdint>
+#include <concepts>
 
 namespace Cango:: inline CommonUtils {
-	/// @brief 计数器，指定最大值，计数到最大值后返回 @c true 否则每次计数时返回 @c false
-	template <typename TNumber>
+	/// @brief 整型计数器，指定最大值，计数到最大值后返回 @c true 否则每次计数时返回 @c false
+	template <std::integral TNumber>
 	struct CounterX final {
 		TNumber Current{};
 		TNumber MaxCount{};

@@ -3,11 +3,14 @@
 #include <concepts>
 #include <memory>
 
+#ifndef CANGO_COMMON_UTILS_INTERNAL_DETAILS
+#define CANGO_COMMON_UTILS_INTERNAL_DETAILS
 namespace Cango::InternalDetails {
 	struct EmptyStruct {};
 
 	static constexpr EmptyStruct EmptyStructInstance{};
 }
+#endif
 
 namespace Cango:: inline CommonUtils :: inline ObjectOwnership {
 	template <typename T>
@@ -25,7 +28,7 @@ namespace Cango:: inline CommonUtils :: inline ObjectOwnership {
 	public:
 		using element_type = T;
 
-		/// @brief 创建空 Owner
+		/// @brief 确保创建一个空 Owner
 		static Owner CreateEmpty() noexcept { return Owner{InternalDetails::EmptyStructInstance}; }
 
 		/// @brief 让 Owner 支持默认构造，Owner 会尽可能地创建一个 T 类型的对象，如果不支持，则创建空 Owner
@@ -46,6 +49,7 @@ namespace Cango:: inline CommonUtils :: inline ObjectOwnership {
 			return *this;
 		}
 
+		/// 检查 Owner 是否有效
 		explicit operator bool() const noexcept { return UserPointer != nullptr; }
 
 		// ReSharper disable once CppNonExplicitConversionOperator
