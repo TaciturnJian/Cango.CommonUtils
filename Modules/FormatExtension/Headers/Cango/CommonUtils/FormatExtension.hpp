@@ -17,21 +17,28 @@ namespace Cango :: inline CommonUtils {
 	};
 
 	struct CharStatusParser {
-		constexpr fmt::format_parse_context::iterator parse(const fmt::format_parse_context& context) {
-			auto i{context.begin()};
-			const auto end{context.end()};
+		char Status{};
 
-			if (i == end || *i == '}') {
-				Status = 0;
-				return i;
-			}
+		using iterator_t = fmt::format_parse_context::iterator;
+		using context_t = fmt::format_parse_context;
 
-			Status = *i++;
-			if (i == end || *i == '}') return i;
-			throw fmt::format_error{"Invalid kv format specifier"};
+		static constexpr bool MeetEnd(const iterator_t& i) {
+			return i == nullptr || *i == '}';
 		}
 
-		char Status;
+		static constexpr bool MeetEnd(
+			const iterator_t& i, 
+			const iterator_t& end) {
+			return i == end || *i == '}';
+		}
+
+		constexpr iterator_t parse(const context_t& context) {
+			auto i{context.begin()};
+			if (MeetEnd(i)) return i;
+			Status = *i++;
+			if (MeetEnd(i, context.end())) return i;
+			throw fmt::format_error{"格式限定符无效"};
+		}
 	};
 }
 
