@@ -15,6 +15,7 @@ RequireLibraries(RequiredLibraries)
 AddModulesInDirectory(
 	DIRECTORY "Modules"
 	NAMES
+		"ScopeNotifier"
 		"AsyncItemPool"
 		"CallRateCounterX"
 		"Configurations"
@@ -22,7 +23,6 @@ AddModulesInDirectory(
 		"GlobalLogger"
 		"IntervalSleeper"
 		"ObjectOwnership"
-		"ScopeNotifier"
 		"JoinThreads"
 		"FormatExtension"
 )

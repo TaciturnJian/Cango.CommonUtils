@@ -2,9 +2,11 @@
 
 #include <array>
 #include <atomic>
-#include <cstdint>
 #include <concepts>
+#include <cstdint>
 #include <memory>
+
+#include <Cango/CommonUtils/ScopeNotifier.hpp>
 
 namespace Cango :: inline CommonUtils {
 	/// @brief 三重物品缓冲池，用于在两个线程中无阻塞地存取较新的数据。
@@ -14,7 +16,11 @@ namespace Cango :: inline CommonUtils {
 	///		二者调用的函数分别为 @c GetItem @c SetItem 。
 	///	@tparam TItem 数据池中存储的物品的类型，要求支持默认构造和等号赋值。
 	template <std::default_initializable TItem>
-	class TripleItemPool final {
+	class TripleItemPool final
+#ifdef _DEBUG
+		: EnableLogLifetime<TripleItemPool<TItem>>
+#endif
+	{
 		/// @brief 指示资源为空，可写不可读
 		static constexpr std::uint8_t Empty = 0;
 

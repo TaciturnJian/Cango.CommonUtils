@@ -3,6 +3,8 @@
 #include <concepts>
 #include <memory>
 
+#include <Cango/CommonUtils/ScopeNotifier.hpp>
+
 #ifndef CANGO_COMMON_UTILS_INTERNAL_DETAILS
 #define CANGO_COMMON_UTILS_INTERNAL_DETAILS
 namespace Cango::InternalDetails {
@@ -20,7 +22,11 @@ namespace Cango:: inline CommonUtils :: inline ObjectOwnership {
 	using ObjectUser = std::shared_ptr<T>;
 
 	template <typename T>
-	class Owner {
+	class Owner final
+#ifdef _DEBUG
+		: EnableLogLifetime<Owner<T>>
+#endif
+	{
 		std::shared_ptr<T> UserPointer;
 
 		explicit Owner(InternalDetails::EmptyStruct) noexcept : UserPointer{} {}

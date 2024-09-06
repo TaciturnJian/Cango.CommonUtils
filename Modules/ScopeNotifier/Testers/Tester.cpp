@@ -5,26 +5,20 @@
 using namespace Cango;
 
 namespace {
-	class TestModule {
-		CANGO_SCOPE("TestModule");
-
-	public:
-		void Test() const {
-			CANGO_SCOPE("1");
-			{
-				CANGO_SCOPE("2");
-				{
-					CANGO_SCOPE("3");
-				}
-			}
-		}
+	struct TestData
+#ifdef _DEBUG
+	 : EnableLogLifetime<TestData> 
+#endif
+	{
+		int Value;
 	};
 }
 
 
 int main() {
 	spdlog::set_level(spdlog::level::trace);
-
-	TestModule module{};
-	module.Test();
+	TestData data{};
+	spdlog::info("sizeof data: {}", sizeof(data));
+	TestData _{};
+	spdlog::info("-----");
 }

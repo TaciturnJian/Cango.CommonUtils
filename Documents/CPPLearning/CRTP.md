@@ -1,6 +1,6 @@
 # CRTP 
 
-2024/8/25 CRTP.md@Sango
+CRTP.md [2024/8/25]@Sango
 
 ## 前言
 

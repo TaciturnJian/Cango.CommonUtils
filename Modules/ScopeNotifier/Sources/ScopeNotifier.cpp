@@ -13,7 +13,7 @@ namespace Cango :: inline CommonUtils {
 	}
 
 	ScopeNotifier::ScopeNotifier(const std::string_view name) noexcept :
-		ScopeNotifier(name, spdlog::default_logger(), spdlog::level::debug) {}
+		ScopeNotifier(name, nullptr, spdlog::level::debug) {}
 
 	ScopeNotifier::~ScopeNotifier() noexcept {
 		const auto message = fmt::format("退出范围：{}", ScopeName);

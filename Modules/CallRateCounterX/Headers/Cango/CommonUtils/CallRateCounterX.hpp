@@ -17,7 +17,7 @@ namespace Cango :: inline CommonUtils {
 
 		// UpdateDuration
 		// vvv
-		// [ ]|[ ]|[ ]
+		// [ ]|[ ]|[ ...
 		// ^^^^^^^
 		// TripleDuration
 

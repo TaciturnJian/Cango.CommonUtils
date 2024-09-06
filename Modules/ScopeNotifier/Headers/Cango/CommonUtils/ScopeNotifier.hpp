@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string_view>
-#include <spdlog/logger.h>
+#include <spdlog/spdlog.h>
 
 namespace Cango :: inline CommonUtils {
+	/// @brief 较为复杂的生命周期通知器，在运行时指定范围名称，日志器，日志等级，在构造和销毁时打印日志
 	class ScopeNotifier {
 		std::string ScopeName;
 		std::shared_ptr<spdlog::logger> Logger;
@@ -23,28 +23,50 @@ namespace Cango :: inline CommonUtils {
 		~ScopeNotifier() noexcept;
 	};
 
-	using LifeTimeNotifier = ScopeNotifier;
+	/// @brief 通知生命周期，在构造和销毁时打印日志
+	///	@details
+	///		使用 CRTP 模式，需要对象继承此类，不会影响对象的内存布局。
+	///		继承后，对象的构造和销毁时会调用额外函数，打印日志。
+	template<spdlog::level::level_enum TLevel, typename TObject>
+	struct LifeTimeNotifier {
+		using ObjectType = TObject;
+
+		LifeTimeNotifier() noexcept {
+			auto&& id = typeid(TObject);
+			spdlog::log(TLevel, "({}:{})> 构造对象", id.hash_code(), id.name());
+		}
+
+		~LifeTimeNotifier() noexcept {
+			auto&& id = typeid(TObject);
+			spdlog::log(TLevel, "({}:{})> 销毁对象", id.hash_code(), id.name());
+		}
+	};
+
+	template<typename TObject>
+	using LifeTimeTraceNotifier = LifeTimeNotifier<spdlog::level::trace, TObject>;
+
+	template<typename TObject>
+	using LifeTimeDebugNotifier = LifeTimeNotifier<spdlog::level::debug, TObject>;
+
+	template<typename TObject>
+	using LifeTimeInfoNotifier = LifeTimeNotifier<spdlog::level::info, TObject>;
+
+	template<typename TObject>
+	using LifeTimeWarnNotifier = LifeTimeNotifier<spdlog::level::warn, TObject>;
+
+	template<typename TObject>
+	using LifeTimeErrorNotifier = LifeTimeNotifier<spdlog::level::err, TObject>;
+
+	template<typename TObject>
+	struct EnableLogLifetime {
+		EnableLogLifetime() noexcept {
+			auto&& id = typeid(TObject);
+			spdlog::debug("({}:{})> 构造对象", id.hash_code(), id.name());
+		}
+
+		~EnableLogLifetime() noexcept {
+			auto&& id = typeid(TObject);
+			spdlog::debug("({}:{})> 销毁对象", id.hash_code(), id.name());
+		}
+	};
 }
-
-/// @brief 监控进入退出当前上下文，或者实例的创建与销毁
-/// @code
-/// CANGO_SCOPE("Scope1");
-/// {
-/// 	CANGO_SCOPE("Scope1.1");
-/// 	{
-/// 		CANGO_SCOPE("Scope1.1.1");
-/// 	}
-/// 	{
-/// 		CANGO_SCOPE("Scope1.1.2");
-/// 	}
-/// }
-///	@endcode
-#define CANGO_SCOPE(...) ::Cango::CommonUtils::ScopeNotifier CangoScopeNotifier{__VA_ARGS__}
-
-#ifdef _DEBUG
-/// @brief 在调试模式下使用 @c CANGO_SCOPE 监控，在非调试模式下不使用
-#define DebugScopeNotifier(...) CANGO_SCOPE(__VA_ARGS__)
-#else
-/// @brief 在调试模式下使用 @c CANGO_SCOPE 监控，在非调试模式下不使用
-#define DebugScopeNotifier(...)
-#endif

@@ -2,18 +2,16 @@
 
 #include <functional>
 #include <list>
+#include <span>
 #include <thread>
 #include <vector>
-#include <span>
 
 namespace Cango:: inline CommonUtils {
 	template <typename T>
 	concept IsThreadContainer = requires(T& container, std::thread&& thread) {
 		{ container.push_back(std::move(thread)) };
 		{ container.emplace_back(std::move(thread)) };
-		{ std::begin(container) };
-		{ std::end(container) };
-	};
+	} && std::ranges::range<T>;
 
 	using ThreadList = std::list<std::thread>;
 	using ThreadVector = std::vector<std::thread>;
@@ -29,5 +27,5 @@ namespace Cango:: inline CommonUtils {
 		return threads;
 	}
 
-	void JoinThreads(IsThreadContainer auto& threads) noexcept { for (auto& thread : threads) thread.join(); }
+	void JoinThreads(std::ranges::range auto& threads) noexcept { for (auto& thread : threads) thread.join(); }
 }

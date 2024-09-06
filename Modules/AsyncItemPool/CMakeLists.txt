@@ -4,5 +4,6 @@ AddCXXModule(
 	NAME "AsyncItemPool"
 	NAMESPACE "Cango_CommonUtils"
 	LINKS
-		Threads::Threads
+		"Threads::Threads"
+		"Cango_CommonUtils_ScopeNotifier"
 )
