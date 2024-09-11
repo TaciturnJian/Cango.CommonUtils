@@ -2,7 +2,7 @@ project(Cango.CommonUtils.JoinThreads)
 
 AddCXXModule(
 	NAME "JoinThreads"
-	NAMESPACE "Cango_CommonUtils"
+	NAMESPACE "Cango::CommonUtils"
 	LINKS
 		"Threads::Threads"
 )

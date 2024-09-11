@@ -20,7 +20,7 @@ endif()
 
 AddCXXModule(
 	NAME "AsyncItemPool"
-	NAMESPACE "Cango_CommonUtils"
+	NAMESPACE "Cango::CommonUtils"
 	LINKS
 		"Threads::Threads"
 		${Cango_CommonUtils_AsyncItemPool_ExtraLibs}

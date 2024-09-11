@@ -2,7 +2,7 @@ project(Cango.CommonUtils.IntervalSleeper)
 
 AddCXXModule(
 	NAME "IntervalSleeper"
-	NAMESPACE "Cango_CommonUtils"
+	NAMESPACE "Cango::CommonUtils"
 	LINKS
 		"Threads::Threads"
 		"Cango_CommonUtils_ScopeNotifier"
