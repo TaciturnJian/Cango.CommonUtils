@@ -32,9 +32,7 @@ AddCXXModule(
 	NAMESPACE Cango
 	LINKS
 		"fmt::fmt"
-		"spdlog::spdlog"
 		"Boost::system"
-		"Threads::Threads"
 		"Cango_CommonUtils::AsyncItemPool"
 		"Cango_CommonUtils::CallRateCounterX"
 		"Cango_CommonUtils::Configurations"

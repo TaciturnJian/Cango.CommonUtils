@@ -6,7 +6,13 @@
 #include <cstdint>
 #include <memory>
 
+#ifdef CANGO_CommonUtils_AsyncItemPool_EnableLogLifetime
 #include <Cango/CommonUtils/ScopeNotifier.hpp>
+/// @brief 为类添加日志记录实例的生命周期的功能
+#define CANGO_TRIPLE_ITEM_POOL_ENABLE_LOG_LIFETIME : EnableLogLifetime<TripleItemPool<TItem>>
+#else
+#define CANGO_TRIPLE_ITEM_POOL_ENABLE_LOG_LIFETIME
+#endif
 
 namespace Cango :: inline CommonUtils {
 	/// @brief 三重物品缓冲池，用于在两个线程中无阻塞地存取较新的数据。
@@ -16,10 +22,7 @@ namespace Cango :: inline CommonUtils {
 	///		二者调用的函数分别为 @c GetItem @c SetItem 。
 	///	@tparam TItem 数据池中存储的物品的类型，要求支持默认构造和等号赋值。
 	template <std::default_initializable TItem>
-	class TripleItemPool final
-#ifdef _DEBUG
-		: EnableLogLifetime<TripleItemPool<TItem>>
-#endif
+	class TripleItemPool final CANGO_TRIPLE_ITEM_POOL_ENABLE_LOG_LIFETIME
 	{
 		/// @brief 指示资源为空，可写不可读
 		static constexpr std::uint8_t Empty = 0;
@@ -71,3 +74,5 @@ namespace Cango :: inline CommonUtils {
 	template <std::default_initializable TItem>
 	using AsyncItemPool = TripleItemPool<TItem>;
 }
+
+#undef CANGO_TRIPLE_ITEM_POOL_ENABLE_LOG_LIFETIME

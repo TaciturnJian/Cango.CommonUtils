@@ -3,6 +3,13 @@
 #include <chrono>
 #include <thread>
 
+#ifdef _DEBUG
+#include <Cango/CommonUtils/ScopeNotifier.hpp>
+#define CANGO_INTERVAL_SLEEPER_ENABLE_LOG_LIFETIME : EnableLogLifetime<IntervalSleeperX<TDuration, TClock>>
+#else
+#define CANGO_INTERVAL_SLEEPER_ENABLE_LOG_LIFETIME
+#endif
+
 namespace Cango :: inline CommonUtils {
 	/// @brief 固定间隔休眠器，用来解决一些循环中帧率忽高忽低，不太平滑的问题。
 	///	@details
@@ -15,7 +22,7 @@ namespace Cango :: inline CommonUtils {
 	///		如果你希望设置延时为 0 ，请注意这里会有一个很小的调用延时，而且它还会变化。
 	///		Windows 和 Linux 上表现差距巨大。尤其是 Windows 平台上，在 Interval 太小时方差巨大，我真的爱死微软了。
 	template <typename TDuration, typename TClock>
-	class IntervalSleeperX {
+	class IntervalSleeperX final CANGO_INTERVAL_SLEEPER_ENABLE_LOG_LIFETIME {
 		std::chrono::steady_clock::time_point LastSleepTime{};
 
 	public:
@@ -23,6 +30,7 @@ namespace Cango :: inline CommonUtils {
 		using ClockType = TClock;
 
 		static constexpr TDuration DefaultInterval{100};
+		static constexpr std::chrono::microseconds MinInterval{100};
 
 		TDuration Interval;
 
@@ -48,3 +56,5 @@ namespace Cango :: inline CommonUtils {
 
 	using IntervalSleeper = IntervalSleeperX<std::chrono::milliseconds, std::chrono::steady_clock>;
 }
+
+#undef CANGO_INTERVAL_SLEEPER_ENABLE_LOG_LIFETIME

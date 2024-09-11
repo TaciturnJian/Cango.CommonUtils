@@ -12,15 +12,13 @@ namespace Cango:: inline CommonUtils {
 	[[nodiscard]] bool InitializeDefaultLogger(
 		const std::string_view filename,
 		const spdlog::level::level_enum level) noexcept {
-#pragma region make file sink helper
 		static auto make_file_sink = [](const std::string_view file) {
-			static constexpr std::size_t mb = 1024ull * 1024;
-			static constexpr std::size_t file_size = 5 * mb;
-			static constexpr std::size_t file_count = 0xffff;
+			constexpr std::size_t mb = 1024ull * 1024;
+			constexpr std::size_t file_size = 5 * mb;
+			constexpr std::size_t file_count = 0xffff;
 			return std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
 				std::string{file}, file_size, file_count, true);
 		};
-#pragma endregion
 
 		try {
 			spdlog::default_logger()->set_level(level);

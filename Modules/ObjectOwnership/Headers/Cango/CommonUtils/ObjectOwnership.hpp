@@ -3,7 +3,12 @@
 #include <concepts>
 #include <memory>
 
+#ifdef _DEBUG
 #include <Cango/CommonUtils/ScopeNotifier.hpp>
+#define CANGO_OWNER_ENABLE_LOG_LIFETIME : EnableLogLifetime<Owner<T>>
+#else
+#define CANGO_OWNER_ENABLE_LOG_LIFETIME
+#endif
 
 #ifndef CANGO_COMMON_UTILS_INTERNAL_DETAILS
 #define CANGO_COMMON_UTILS_INTERNAL_DETAILS
@@ -22,10 +27,7 @@ namespace Cango:: inline CommonUtils :: inline ObjectOwnership {
 	using ObjectUser = std::shared_ptr<T>;
 
 	template <typename T>
-	class Owner final
-#ifdef _DEBUG
-		: EnableLogLifetime<Owner<T>>
-#endif
+	class Owner final CANGO_OWNER_ENABLE_LOG_LIFETIME
 	{
 		std::shared_ptr<T> UserPointer;
 
@@ -59,13 +61,15 @@ namespace Cango:: inline CommonUtils :: inline ObjectOwnership {
 		explicit operator bool() const noexcept { return UserPointer != nullptr; }
 
 		// ReSharper disable once CppNonExplicitConversionOperator
-		operator ObjectUser<T>() const noexcept { return UserPointer; }
+		operator ObjectUser<T>() const noexcept { return UserPointer; } // NOLINT(*-explicit-constructor)
 
 		// ReSharper disable once CppNonExplicitConversionOperator
-		operator Credential<T>() const noexcept { return UserPointer; }
+		operator Credential<T>() const noexcept { return UserPointer; } // NOLINT(*-explicit-constructor)
 
 		T& operator*() const noexcept { return *UserPointer; }
 
 		T* operator->() const noexcept { return UserPointer.get(); }
 	};
 }
+
+#undef CANGO_OWNER_ENABLE_LOG_LIFETIME

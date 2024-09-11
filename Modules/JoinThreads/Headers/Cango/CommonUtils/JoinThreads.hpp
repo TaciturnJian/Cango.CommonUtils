@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <list>
-#include <span>
 #include <thread>
 #include <vector>
 
@@ -15,7 +14,6 @@ namespace Cango:: inline CommonUtils {
 
 	using ThreadList = std::list<std::thread>;
 	using ThreadVector = std::vector<std::thread>;
-	using ThreadSpan = std::span<std::thread>;
 
 	auto& operator<<(IsThreadContainer auto& threads, std::thread&& thread) noexcept {
 		threads.push_back(std::move(thread));

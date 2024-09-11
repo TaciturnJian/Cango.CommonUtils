@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/type_index.hpp>
 #include <spdlog/spdlog.h>
 
 namespace Cango :: inline CommonUtils {
@@ -28,7 +29,7 @@ namespace Cango :: inline CommonUtils {
 	///		使用 CRTP 模式，需要对象继承此类，不会影响对象的内存布局。
 	///		继承后，对象的构造和销毁时会调用额外函数，打印日志。
 	template<spdlog::level::level_enum TLevel, typename TObject>
-	struct LifeTimeNotifier {
+	struct [[deprecated("use EnableLogLifetime instead")]] LifeTimeNotifier {
 		using ObjectType = TObject;
 
 		LifeTimeNotifier() noexcept {
@@ -42,6 +43,7 @@ namespace Cango :: inline CommonUtils {
 		}
 	};
 
+	/* 弃用的 LifeTimeNotifier
 	template<typename TObject>
 	using LifeTimeTraceNotifier = LifeTimeNotifier<spdlog::level::trace, TObject>;
 
@@ -56,17 +58,19 @@ namespace Cango :: inline CommonUtils {
 
 	template<typename TObject>
 	using LifeTimeErrorNotifier = LifeTimeNotifier<spdlog::level::err, TObject>;
+	*/
 
+	/// @brief 调试用，启动类实例的生命周期日志记录，在实例创建和销毁时，打印日志。
 	template<typename TObject>
 	struct EnableLogLifetime {
 		EnableLogLifetime() noexcept {
-			auto&& id = typeid(TObject);
-			spdlog::debug("({}:{})> 构造对象", id.hash_code(), id.name());
+			auto&& id = boost::typeindex::type_id_with_cvr<TObject>();
+			spdlog::debug("{}> 构造对象", id.pretty_name());
 		}
 
 		~EnableLogLifetime() noexcept {
-			auto&& id = typeid(TObject);
-			spdlog::debug("({}:{})> 销毁对象", id.hash_code(), id.name());
+			auto&& id = boost::typeindex::type_id_with_cvr<TObject>();
+			spdlog::debug("{}> 销毁对象", id.pretty_name());
 		}
 	};
 }
