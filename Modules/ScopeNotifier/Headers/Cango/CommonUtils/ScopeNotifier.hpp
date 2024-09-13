@@ -25,15 +25,17 @@ namespace Cango :: inline CommonUtils {
 	};
 
 	/// @brief 调试用，启动类实例的生命周期日志记录，在实例创建和销毁时，打印日志。
-	template<typename TObject>
-	struct EnableLogLifetime {
+	/// @tparam TDerived 继承类，使用 CRTP 以确保功能正常
+	template<typename TDerived>
+	class EnableLogLifetime {
+	public:
 		EnableLogLifetime() noexcept {
-			auto&& id = boost::typeindex::type_id_with_cvr<TObject>();
+			auto&& id = boost::typeindex::type_id<TDerived>();
 			spdlog::debug("{}> 构造对象", id.pretty_name());
 		}
 
 		~EnableLogLifetime() noexcept {
-			auto&& id = boost::typeindex::type_id_with_cvr<TObject>();
+			auto&& id = boost::typeindex::type_id<TDerived>();
 			spdlog::debug("{}> 销毁对象", id.pretty_name());
 		}
 	};

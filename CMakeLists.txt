@@ -8,6 +8,7 @@ set(RequiredLibraries
 	"fmt::fmt"
 	"spdlog::spdlog"
 	"Boost::system"
+	"Boost::filesystem"
 	"Threads::Threads"
 )
 RequireLibraries(RequiredLibraries)
@@ -24,15 +25,12 @@ AddModulesInDirectory(
 		"IntervalSleeper"
 		"ObjectOwnership"
 		"JoinThreads"
-		"FormatExtension"
 )
 
 AddCXXModule(
 	NAME CommonUtils
 	NAMESPACE Cango
 	LINKS
-		"fmt::fmt"
-		"Boost::system"
 		"Cango::CommonUtils::AsyncItemPool"
 		"Cango::CommonUtils::CallRateCounterX"
 		"Cango::CommonUtils::Configurations"
@@ -42,5 +40,4 @@ AddCXXModule(
 		"Cango::CommonUtils::ObjectOwnership"
 		"Cango::CommonUtils::ScopeNotifier"
 		"Cango::CommonUtils::JoinThreads"
-		"Cango::CommonUtils::FormatExtension"
 )	

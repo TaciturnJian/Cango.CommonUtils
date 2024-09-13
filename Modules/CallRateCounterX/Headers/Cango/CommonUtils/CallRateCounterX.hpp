@@ -5,22 +5,39 @@
 #include <concepts>
 
 namespace Cango :: inline CommonUtils {
-	/// @brief 调用速率计数器，单位是(次/s)，支持的频率范围为 (1, @c std::numeric_limits<TNumber>::max() )。
+	namespace InternalDetials {
+		/// @brief 移动一些静态成员到外部，略微减少模板实例化的负担
+		class FunctionsForCallRateCounterX {
+		protected:
+			static constexpr std::chrono::milliseconds UpdateDuration{1000};
+			static constexpr std::chrono::milliseconds TripleDuration{3000};
+
+			// 共三段时间
+			// UpdateDuration 第一段时间较短，用于仅计数
+			// vvv
+			// [ ]|[ ]|[ ...
+			// ^^^^^^^
+			// TripleDuration 这个时间段包含第一第二两段时间，用于记录某个特定时间点的计数，在之后的计数中减去这个计数
+
+			/// 转换为毫秒，原本的名称太长
+			static std::chrono::milliseconds ToMS(const auto& duration) {
+				return std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+			}
+
+			/// 计算频率
+			static float GetFrequency(const auto count, const std::chrono::milliseconds& duration) noexcept {
+				return static_cast<float>(count) * 1000.0f / static_cast<float>(duration.count());
+			}
+		};
+	}
+
+	/// @brief 调用速率计数器，单位是(次/s)，有效的频率范围为(1, 传入整数支持最大值)。
 	///	@details
 	///		内部最小时间单位为毫秒。
+	///		内部设计理论上可以避免整数溢出。
 	///		如果调用速率小于等于 1hz 那么输出结果极其不稳定。
-	///		理论可以避免整数溢出。
 	template <std::integral TNumber>
-	class CallRateCounterX {
-		static constexpr std::chrono::milliseconds UpdateDuration{1000};
-		static constexpr std::chrono::milliseconds TripleDuration{3000};
-
-		// UpdateDuration
-		// vvv
-		// [ ]|[ ]|[ ...
-		// ^^^^^^^
-		// TripleDuration
-
+	class CallRateCounterX final : protected InternalDetials::FunctionsForCallRateCounterX {
 		bool IsSetSomeTime{false};
 		std::chrono::steady_clock::time_point BeginTime{};
 		std::chrono::steady_clock::time_point SomeTime{};
@@ -44,18 +61,12 @@ namespace Cango :: inline CommonUtils {
 			Count -= CountAtSomeTime;
 		}
 
-		static std::chrono::milliseconds ToMS(const auto& duration) {
-			return std::chrono::duration_cast<std::chrono::milliseconds>(duration);
-		}
-
-		static float GetFrequency(const TNumber count, const std::chrono::milliseconds& duration) noexcept {
-			return static_cast<float>(count) * 1000.0f / static_cast<float>(duration.count());
-		}
-
 	public:
 		/// @brief 使用提供的当前时间更新计数
+		/// @param now 当前时间，不得小于上次传入的时间
+		/// @return 返回当前的调用频率
 		float Call(const std::chrono::steady_clock::time_point& now) noexcept {
-			// [x]|[ ]|[ ]
+			// [x]|[ ]|[ ] 假设处于第一段时间
 
 			++Count;
 			const auto diff = ToMS(now - BeginTime);

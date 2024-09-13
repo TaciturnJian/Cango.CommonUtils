@@ -8,4 +8,6 @@ AddCXXModule(
 		"spdlog::spdlog"
 		"Boost::system"
 		"Boost::filesystem"
+		"matchit::matchit"
+		"frozen::frozen"
 )

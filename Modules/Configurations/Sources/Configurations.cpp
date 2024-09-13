@@ -1,5 +1,5 @@
 #include <functional>
-#include <map>
+#include <frozen/map.h>
 #include <optional>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -52,7 +52,7 @@ namespace {
 
 	std::optional<reader_t> SelectReader(spdlog::logger& logger, const FilePathType& path) noexcept {
 #define sc_generate_reader(boost_call) [](const std::string& filename, VariableTable& table) noexcept { boost_call(filename, table); }
-		static const std::map<std::string, reader_t> reader_map{
+		static const frozen::map<std::string, reader_t, 4> reader_map{
 			{".ini", sc_generate_reader(read_ini)},
 			{".json", sc_generate_reader(read_json)},
 			{".xml", sc_generate_reader(read_xml)},
@@ -108,7 +108,7 @@ namespace {
 
 	std::optional<writer_t> SelectWriter(spdlog::logger& logger, const FilePathType& path) noexcept {
 #define sc_generate_writer(boost_call) [](const std::string& filename, const VariableTable& pt) noexcept { boost_call(filename, pt); }
-		static const std::map<std::string, writer_t> writer_map{
+		static const frozen::map<std::string, writer_t, 4> writer_map{
 			{".ini", sc_generate_writer(write_ini)},
 			{".json", sc_generate_writer(write_json)},
 			{".xml", sc_generate_writer(write_xml)},
@@ -156,7 +156,7 @@ namespace Cango :: inline CommonUtils :: inline Configurations {
 			return false;
 		}
 
-		const std::optional<reader_t> reader = SelectReader(logger, file);
+		const auto reader = SelectReader(logger, file);
 		if (!reader) {
 			logger.error("找不到合适读取器读取配置文件({})", path_string);
 			return false;
