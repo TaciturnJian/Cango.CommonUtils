@@ -5,25 +5,28 @@
 #include <sstream>
 #include <thread>
 #include <type_traits>
+#include <Cango/CommonUtils/Configurations.hpp>
 
 // c++ 23
 
+/*
 namespace {
+
     /// @brief 将源与 宿|转换器 结合成为一个 任务|新源
     /// @tparam TSource 源，要求可以调用 TSource() 并返回一个对象
     /// @tparam TSinkOrTransformer 宿，要求可以调用 TSink(TSource())
     /// @param source 物品源的引用
-    /// @param sinkOrTransformer 物品 宿|转换器 的引用
+    /// @param sot 物品 宿|转换器 的引用
     /// @return 一个可以直接调用的任务，或者一个新的可以直接调用的源，取决于 sinkOrTransformer
     template<typename TSource, typename TSinkOrTransformer>
     requires std::invocable<TSource>
         && std::invocable<TSinkOrTransformer, std::invoke_result_t<TSource>>
-    auto operator >>(TSource&& source, TSinkOrTransformer&& sinkOrTransformer) {
-        return [&source, &sinkOrTransformer] {
+    auto operator >>(TSource&& source, TSinkOrTransformer&& sot) {
+        return [source = std::forward<TSource>(source), sot = std::forward<TSinkOrTransformer>(sot)] {
             if constexpr (std::same_as<std::invoke_result_t<TSinkOrTransformer, std::invoke_result_t<TSource>>, std::void_t<>>)
-                sinkOrTransformer(source());
+                sot(source());
             else
-                return sinkOrTransformer(source());
+                return sot(source());
         };
     }
 
@@ -31,7 +34,7 @@ namespace {
     struct optional_pass {
         using type = T;
 
-        std::function<void()> Handle{};
+        std::function<void()> Handle;
 
         void operator()() const {
             if (Handle) Handle();
@@ -40,8 +43,8 @@ namespace {
 
     template<typename TSink, typename TOptionalPass, typename TObject = typename TOptionalPass::type>
     requires std::invocable<TSink, TObject>
-    auto operator+(TSink&& sink, const TOptionalPass& pass) {
-        return [&sink, &pass] (const std::optional<TObject>& input) {
+    auto operator+(const TSink& sink, const TOptionalPass& pass) {
+        return [&sink, &pass] (const std::optional<TObject> input) {
             if (input) sink(*input);
             else pass();
         };
@@ -54,7 +57,7 @@ namespace {
     /// @param sink 宿的引用
     /// @return 一个新宿，接收的类型为转换器的输入的类型
     template<typename TTransformer, typename TSink>
-    auto operator >>(TTransformer&& transformer, TSink&& sink) {
+    auto operator >>(const TTransformer& transformer, const TSink& sink) {
         return [&transformer, &sink] (const auto& input) {
             sink(transformer(input));
         };
@@ -62,7 +65,7 @@ namespace {
 
     /// @brief 将两个宿结合成为一个新宿，接收对象后，依次送到两个宿中
     template<typename TSinkFirst, typename TSinkNext>
-    auto operator |(TSinkFirst&& first, TSinkNext&& next) {
+    auto operator |(const TSinkFirst& first, const TSinkNext& next) {
         return [&first, &next] (const auto& input) {
             first(input);
             next(input);
@@ -71,7 +74,7 @@ namespace {
 
     /// @brief 将两个宿结合成为一个新宿，接收对象后，同时送到两个宿中
     template<typename TSinkA, typename TSinkB>
-    auto operator ||(TSinkA&& a, TSinkB&& b) {
+    auto operator ||(const TSinkA& a, const TSinkB& b) {
         return [&a, &b] (const auto& input) {
             std::thread t1{[&a, &input]{ a(input); }};
             std::thread t2{[&b, &input]{ b(input); }};
@@ -82,14 +85,14 @@ namespace {
 
     template<std::invocable TTaskFirst, std::invocable TTaskNext>
     auto operator &(TTaskFirst&& first, TTaskNext&& next) {
-        return [&first, &next] {
+        return [first = std::forward<TTaskFirst>(first), next = std::forward<TTaskNext>(next)] {
             first();
             next();
         };
     }
 
     template<std::invocable TTaskA, std::invocable TTaskB>
-    auto operator &&(TTaskA&& a, TTaskB&& b) {
+    auto operator &&(const TTaskA& a, const TTaskB& b) {
         return [&a, &b] {
             std::thread t1{[&a]{ a(); }};
             std::thread t2{[&b]{ b(); }};
@@ -103,14 +106,18 @@ namespace {
     requires std::invocable<TCondition> &&
         std::convertible_to<std::invoke_result_t<TCondition>, bool> &&
         std::invocable<TTask>
-    auto operator <<(TCondition&& flow_while, TTask&& task) {
-        return [&flow_while, &task] {while(flow_while()) task();};
+    auto operator <<(TCondition&& whileCondition, TTask&& task) {
+        return [while_condition = std::forward<TCondition>(whileCondition), task = std::forward<TTask>(task)] {
+            while(while_condition()) task();
+        };
     }
 
     template<std::integral TCount, typename TTask>
-    requires std::invocable<TTask>
-    auto operator <<(TCount count, TTask&& task) {
-        return [&task, count] {for(TCount i = 0; i < count; ++i) task();};
+        requires std::invocable<TTask>
+    auto operator <<(const TCount count, TTask&& task) {
+        // 若传入的任务为一个万能引用，则将其复制转发进新任务中
+        // 不符合左值与右值的引用，采用复制手段确保任务在上下文中可用
+        return [count, task = std::forward<TTask>(task)] {for(TCount i = 0; i < count; ++i) task();};
     }
 
     /// @brief 将任务与条件结合成为一个新任务，执行任务，当条件满足时循环
@@ -118,62 +125,33 @@ namespace {
     requires std::invocable<TTask> &&
         std::convertible_to<std::invoke_result_t<TCondition>, bool> &&
             std::invocable<TCondition>
-    auto operator >> (TTask&& task, TCondition&& flow_while) {
+    auto operator >> (const TTask& task, const TCondition& flow_while) {
         return [&task, &flow_while] {do {task();} while(flow_while());};
     }
+
+    struct int_source {
+        mutable int i{};
+
+        auto operator()() const -> std::optional<int> {
+            return i++;
+        }
+    };
 }
+*/
 
 int main() {
-    auto source = [] -> std::optional<int> {
-        thread_local int i = 0;
-        if (++i % 3 == 0) return std::nullopt;
-        return i;
-    };
+    Cango::FileConfigure config{"config.json"};
 
-    auto transformer = [] (const int& i) {
-        return i * 2;
-    };
+    if (!config.Load()) {
+        config->put("name", "Cango");
+        (void)config.Save();
+    }
 
-    auto sink1 = [] (const int i) {
-        static int id = 0;
-        std::ostringstream stream{};
-        stream << id++ << " = " << i << std::endl;
-        std::cout << stream.str();
-        std::this_thread::sleep_for(std::chrono::milliseconds{100});
-    };
-
-    auto sink2 = [] (const int i) {
-        static int id = 0;
-        std::ostringstream stream{};
-        stream << id-- << " = " << i << std::endl;
-        std::cout << stream.str();
-        std::this_thread::sleep_for(std::chrono::milliseconds{100});
-    };
-
-    auto monitor = []<typename T>(T&& what) {
-        std::cout << "monitor!\n";
-        return std::forward<T>(what);
-    };
-
-    auto empty_input_handle = [] {
-        std::cout << "empty input!\n";
-    };
-
-    /*(
-        // 任务1 从源中获取物品，后打印监控消息，发送到 sink1，如果 std::optional 为空，则调用 empty_input_handle
-        (10 << ( source >> monitor >> sink1 + optional_pass<int>{empty_input_handle} ))
-        // 并行执行
-        &&
-        // 任务2
-        (100 << ( source >> sink2 + optional_pass<int>{empty_input_handle} ))
-    )();*/ // ok
-
-    // 段错误
-    auto task1 = 100 << (source >> monitor >> sink1 + optional_pass<int>{empty_input_handle});
-    auto task2 = 100 << (source >> sink2 + optional_pass<int>{empty_input_handle});
-    ( task1 & task2 )();
-
-    std::this_thread::sleep_for(std::chrono::seconds{2});
+    std::string value{};
+    if (!config.Read("name", value))
+        spdlog::warn("cannot read name");
+    else
+        spdlog::info("name: {}", value);
 
     return 0;
 }

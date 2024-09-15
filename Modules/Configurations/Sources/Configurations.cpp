@@ -1,5 +1,4 @@
 #include <functional>
-#include <frozen/map.h>
 #include <optional>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -8,6 +7,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <Cango/CommonUtils/Configurations.hpp>
+#include <frozen/map.h>
 
 namespace {
 	using namespace Cango;
@@ -89,11 +89,7 @@ namespace {
 		return false;
 	}
 
-#ifdef _WINDOWS
-#undef CreateFile
-#endif
-
-	bool CreateFile(spdlog::logger& logger, const FilePathType& path) {
+	bool CreateConfigFile(spdlog::logger& logger, const FilePathType& path) {
 		if (const ofstream stream{path, fstream::out}; stream.is_open()) return true;
 		logger.error("无法创建文件({})", path.string());
 		return false;
@@ -101,7 +97,7 @@ namespace {
 
 	bool VerifyPathToWrite(spdlog::logger& logger, const FilePathType& path) noexcept {
 		if (error_code result{}; exists(path, result) && !result.failed()) return true;
-		return CreateFile(logger, path);
+		return CreateConfigFile(logger, path);
 	}
 
 	using writer_t = std::function<void(const std::string&, const VariableTable&)>;
