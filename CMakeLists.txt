@@ -1,43 +1,47 @@
 cmake_minimum_required(VERSION 3.28)
 
-include(Cango)
+include("Cango")
 
 project("Cango.CommonUtils")
 
-set(RequiredLibraries
-	"fmt::fmt"
-	"spdlog::spdlog"
-	"Boost::system"
-	"Boost::filesystem"
-	"Threads::Threads"
-)
-RequireLibraries(RequiredLibraries)
+option(Cango_CommonUtils_EnableScopeNotifier "enable scope notifier for most of the utils" YES)
+message(STATUS "${PROJECT_NAME}> EnableScopeNotifier: ${Cango_CommonUtils_EnableScopeNotifier}")
 
-AddModulesInDirectory(
-	DIRECTORY "Modules"
-	NAMES
-		"ScopeNotifier"
-		"AsyncItemPool"
-		"CallRateCounterX"
-		"Configurations"
-		"CounterX"
-		"GlobalLogger"
-		"IntervalSleeper"
-		"ObjectOwnership"
-		"JoinThreads"
-)
+set(Cango_CommonUtils_ScopeNotifier_ExtraCompileDefinitions "")
+macro(Cango_CommonUtils_DependentScopeNotifier moduleName)
+	cmake_dependent_option(Cango_CommonUtils_${moduleName}_EnableScopeNotifier
+		"enable scope notifier for ${moduleName}" YES
+		"Cango_CommonUtils_EnableScopeNotifier" NO
+	)
+	message(STATUS "${PROJECT_NAME}> ${moduleName}_EnableScopeNotifier: ${Cango_CommonUtils_${moduleName}_EnableScopeNotifier}")
+	if (Cango_CommonUtils_${moduleName}_EnableScopeNotifier)
+		list(APPEND Cango_CommonUtils_ScopeNotifier_ExtraCompileDefinitionLines
+			"-DCANGO_COMMON_UTILS_ENABLE_SCOPE_NOTIFIER_FOR_${moduleName}"
+		)
+	endif()
+endmacro()
+
+Cango_CommonUtils_DependentScopeNotifier("AsyncItemPool")
+Cango_CommonUtils_DependentScopeNotifier("IntervalSleeper")
+Cango_CommonUtils_DependentScopeNotifier("ObjectOwnership")
 
 AddCXXModule(
-	NAME CommonUtils
-	NAMESPACE Cango
+	NAME "CommonUtils"
+	NAMESPACE "Cango"
+	HEADER_DIR "Headers"
+	SOURCE_DIR "Sources"
+	TESTER_DIR "Testers"
+	CXX_STANDARD 26
 	LINKS
-		"Cango::CommonUtils::AsyncItemPool"
-		"Cango::CommonUtils::CallRateCounterX"
-		"Cango::CommonUtils::Configurations"
-		"Cango::CommonUtils::CounterX"
-		"Cango::CommonUtils::GlobalLogger"
-		"Cango::CommonUtils::IntervalSleeper"
-		"Cango::CommonUtils::ObjectOwnership"
-		"Cango::CommonUtils::ScopeNotifier"
-		"Cango::CommonUtils::JoinThreads"
-)	
+		"fmt::fmt"
+		"spdlog::spdlog"
+		"Boost::system"
+		"Boost::filesystem"
+		"Threads::Threads"
+)
+
+if (Cango_CommonUtils_EnableScopeNotifier)
+	foreach(compileDefinitionLine IN LISTS Cango_CommonUtils_ScopeNotifier_ExtraCompileDefinitionLines)
+		target_compile_definitions(Cango_CommonUtils PUBLIC ${compileDefinitionLine})
+	endforeach()
+endif()

@@ -3,7 +3,7 @@
 #include <chrono>
 #include <thread>
 
-#ifdef _DEBUG
+#ifdef CANGO_COMMON_UTILS_ENABLE_SCOPE_NOTIFIER_FOR_IntervalSleeper
 #include <Cango/CommonUtils/ScopeNotifier.hpp>
 #define CANGO_INTERVAL_SLEEPER_ENABLE_LOG_LIFETIME : EnableLogLifetime<IntervalSleeperX<TDuration, TClock>>
 #else

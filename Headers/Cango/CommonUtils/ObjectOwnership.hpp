@@ -3,7 +3,7 @@
 #include <concepts>
 #include <memory>
 
-#ifdef _DEBUG
+#ifdef CANGO_COMMON_UTILS_ENABLE_SCOPE_NOTIFIER_FOR_ObjectOwnership
 #include <Cango/CommonUtils/ScopeNotifier.hpp>
 #define CANGO_OWNER_ENABLE_LOG_LIFETIME : EnableLogLifetime<Owner<T>>
 #else

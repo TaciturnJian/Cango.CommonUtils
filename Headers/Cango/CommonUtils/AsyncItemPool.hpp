@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <memory>
 
-#ifdef CANGO_CommonUtils_AsyncItemPool_EnableLogLifetime
+#ifdef CANGO_COMMON_UTILS_ENABLE_SCOPE_NOTIFIER_FOR_AsyncItemPool
 #include <Cango/CommonUtils/ScopeNotifier.hpp>
 /// @brief 为类添加日志记录实例的生命周期的功能
 #define CANGO_TRIPLE_ITEM_POOL_ENABLE_LOG_LIFETIME : EnableLogLifetime<TripleItemPool<TItem>>
