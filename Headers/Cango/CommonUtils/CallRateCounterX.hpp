@@ -7,7 +7,7 @@
 namespace Cango :: inline CommonUtils {
 	namespace InternalDetials {
 		/// @brief 移动一些静态成员到外部，略微减少模板实例化的负担
-		class FunctionsForCallRateCounterX {
+		class StaticFunctionsForCallRateCounterX {
 		protected:
 			static constexpr std::chrono::milliseconds UpdateDuration{1000};
 			static constexpr std::chrono::milliseconds TripleDuration{3000};
@@ -37,7 +37,7 @@ namespace Cango :: inline CommonUtils {
 	///		内部设计理论上可以避免整数溢出。
 	///		如果调用速率小于等于 1hz 那么输出结果极其不稳定。
 	template <std::integral TNumber>
-	class CallRateCounterX final : protected InternalDetials::FunctionsForCallRateCounterX {
+	class CallRateCounterX final : protected InternalDetials::StaticFunctionsForCallRateCounterX { // empty base optimization
 		bool IsSetSomeTime{false};
 		std::chrono::steady_clock::time_point BeginTime{};
 		std::chrono::steady_clock::time_point SomeTime{};

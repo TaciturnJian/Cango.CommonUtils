@@ -4,10 +4,6 @@ include("Cango")
 
 project("Cango.CommonUtils")
 
-option(Cango_CommonUtils_EnableScopeNotifier "enable scope notifier for most of the utils" YES)
-message(STATUS "${PROJECT_NAME}> EnableScopeNotifier: ${Cango_CommonUtils_EnableScopeNotifier}")
-
-set(Cango_CommonUtils_ScopeNotifier_ExtraCompileDefinitions "")
 macro(Cango_CommonUtils_DependentScopeNotifier moduleName)
 	cmake_dependent_option(Cango_CommonUtils_${moduleName}_EnableScopeNotifier
 		"enable scope notifier for ${moduleName}" YES
@@ -21,9 +17,25 @@ macro(Cango_CommonUtils_DependentScopeNotifier moduleName)
 	endif()
 endmacro()
 
-Cango_CommonUtils_DependentScopeNotifier("AsyncItemPool")
-Cango_CommonUtils_DependentScopeNotifier("IntervalSleeper")
-Cango_CommonUtils_DependentScopeNotifier("ObjectOwnership")
+macro(Cango_CommonUtils_AboutScopeNotifier)
+	option(Cango_CommonUtils_EnableScopeNotifier "enable scope notifier for most of the utils" YES)
+	message(STATUS "${PROJECT_NAME}> EnableScopeNotifier: ${Cango_CommonUtils_EnableScopeNotifier}")
+
+	set(Cango_CommonUtils_ScopeNotifier_ExtraCompileDefinitions "")
+
+	Cango_CommonUtils_DependentScopeNotifier("AsyncItemPool")
+	Cango_CommonUtils_DependentScopeNotifier("IntervalSleeper")
+	Cango_CommonUtils_DependentScopeNotifier("ObjectOwnership")
+endmacro()
+
+Cango_CommonUtils_AboutScopeNotifier()
+
+# add "stdc++_libbacktrace" from /lib/gcc/x86_64-linux-gnu/13/libstdc++_libbacktrace.a
+add_library(libbacktrace STATIC IMPORTED)
+set_target_properties(libbacktrace PROPERTIES
+	IMPORTED_LOCATION "/lib/gcc/x86_64-linux-gnu/13/libstdc++_libbacktrace.a"
+)
+
 
 AddCXXModule(
 	NAME "CommonUtils"
@@ -38,6 +50,7 @@ AddCXXModule(
 		"Boost::system"
 		"Boost::filesystem"
 		"Threads::Threads"
+		"libbacktrace"
 )
 
 if (Cango_CommonUtils_EnableScopeNotifier)

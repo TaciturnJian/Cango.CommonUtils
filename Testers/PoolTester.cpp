@@ -22,7 +22,6 @@ namespace {
 
 	struct StaticSleeper {
 		std::chrono::milliseconds duration;
-		// ReSharper disable once CppMemberFunctionMayBeConst
 		void Sleep() noexcept { std::this_thread::sleep_for(duration); }
 	};
 

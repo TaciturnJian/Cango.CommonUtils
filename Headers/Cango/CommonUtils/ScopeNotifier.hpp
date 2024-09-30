@@ -30,13 +30,16 @@ namespace Cango :: inline CommonUtils {
 	class EnableLogLifetime {
 	public:
 		EnableLogLifetime() noexcept {
-			auto&& id = boost::typeindex::type_id<TDerived>();
-			spdlog::debug("{}> 构造对象", id.pretty_name());
+			spdlog::debug("{}> 构造对象", boost::typeindex::type_id<TDerived>().pretty_name());
 		}
 
 		~EnableLogLifetime() noexcept {
-			auto&& id = boost::typeindex::type_id<TDerived>();
-			spdlog::debug("{}> 销毁对象", id.pretty_name());
+			spdlog::debug("{}> 销毁对象", boost::typeindex::type_id<TDerived>().pretty_name());
 		}
 	};
+}
+
+namespace cango {
+	template<typename T>
+	using enable_log_lifetime = Cango::CommonUtils::EnableLogLifetime<T>;
 }
