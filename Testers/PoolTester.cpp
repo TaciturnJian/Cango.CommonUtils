@@ -37,7 +37,7 @@ int main() {
 	auto print_writer_info_csv = [](const int id, const long writer) {
 		std::cout << id << "," << writer << ",\n";
 	};
-
+	
 	std::map<int, clock_type::time_point> writer_times{};
 	std::thread writer{
 		[&pool, &writer_times, &writer_done] {
