@@ -8,6 +8,7 @@ using namespace std::chrono_literals;
 using namespace std::chrono;
 
 int main() {
+
 	spdlog::set_level(spdlog::level::debug);
 
 	CallRateCounter counter;
