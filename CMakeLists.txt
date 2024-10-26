@@ -5,10 +5,12 @@ include("Cango")
 project("Cango.CommonUtils")
 
 macro(Cango_CommonUtils_DependentScopeNotifier moduleName)
-	cmake_dependent_option(Cango_CommonUtils_${moduleName}_EnableScopeNotifier
-		"enable scope notifier for ${moduleName}" YES
-		"Cango_CommonUtils_EnableScopeNotifier" NO
-	)
+	set(Cango_CommonUtils_EnableScopeNotifier YES)
+	set(Cango_CommonUtils_${moduleName}_EnableScopeNotifier YES)
+#	cmake_dependent_option(Cango_CommonUtils_${moduleName}_EnableScopeNotifier
+#		"enable scope notifier for ${moduleName}" YES
+#		"Cango_CommonUtils_EnableScopeNotifier" NO
+#	)
 	message(STATUS "${PROJECT_NAME}> ${moduleName}_EnableScopeNotifier: ${Cango_CommonUtils_${moduleName}_EnableScopeNotifier}")
 	if (Cango_CommonUtils_${moduleName}_EnableScopeNotifier)
 		list(APPEND Cango_CommonUtils_ScopeNotifier_ExtraCompileDefinitionLines
@@ -50,7 +52,6 @@ AddCXXModule(
 		"Boost::system"
 		"Boost::filesystem"
 		"Threads::Threads"
-		"libbacktrace"
 )
 
 if (Cango_CommonUtils_EnableScopeNotifier)
